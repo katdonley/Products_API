@@ -1,14 +1,21 @@
+from urllib import response
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
-import products
+from rest_framework import status
 from .serializers import ProductSerializer
 from .models import Product
-from products import serializers
 
-@api_view(['GET'])
+
+@api_view(['GET', 'POST',])
 def products_list(request):
-    products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
-
-    return Response(serializer.data)
+    if request.method == 'GET':
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = ProductSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status.HTTP_201_CREATED)
+        #else:
+            #return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
